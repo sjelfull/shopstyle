@@ -32,6 +32,6 @@ class ShopStyleController extends BaseController
 
         $results = craft()->shopStyle->getBatchResults();
 
-        $this->returnJson($results);
+        $this->returnJson([ 'products' => $results, 'total' => count($results) ]);
     }
 }
