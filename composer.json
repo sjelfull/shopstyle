@@ -1,0 +1,14 @@
+{
+	"name": "sjelfull/shopstyle",
+	"description": "API feed",
+	"type": "craft-plugin",
+	"authors": [
+		{
+			"name": "Superbig",
+			"homepage": "https://superbig.co"
+		}
+	],
+	"require": {
+		"composer/installers": "~1.0"
+	}
+}
