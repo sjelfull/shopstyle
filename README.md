@@ -33,4 +33,11 @@ return [
 
 Call http://sitedomain/actions/shopStyle. It should return a JSON with all the products.
 
+## Options
+
+* To add filters for brand, retailer, price, discount, and/or size, call the action URL with one or more `filter[]` parameters, ie. `/actions/shopStyle?filter[]=d0&filter[]=b171`
+* To change the sorting, use the `sort` parameter: `/actions/shopStyle?sort=PriceLoHi`
+* To select a category, use the `category` parameter: `/actions/shopStyle?category=dresses`
+* To add a price drop date, use the `priceDropDate` parameter: `/actions/shopStyle?priceDropDate=<date>`
+
 Brought to you by [Superbig](https://superbig.co)

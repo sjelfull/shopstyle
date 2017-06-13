@@ -33,14 +33,14 @@ class ShopStyleService extends BaseApplicationComponent
         ]);
     }
 
-    public function getBatchResults ()
+    public function getBatchResults ($options = [ ])
     {
+
         $maxResults   = (int)craft()->config->get('maxResults', 'shopstyle');
         $increment    = 50;
         $perBatch     = 10;
-        $firstResults = $this->getResult();
-
-        $products = [ ];
+        $firstResults = $this->getResults($offset = 0, $options);
+        $products     = [ ];
 
         if ( isset($firstResults['metadata']['total']) ) {
             $total = (int)$firstResults['metadata']['total'];
@@ -69,7 +69,7 @@ class ShopStyleService extends BaseApplicationComponent
                 $offsetBatches = array_chunk($offsets, $perBatch);
 
                 foreach ($offsetBatches as $batch) {
-                    $batchProducts = $this->getBatch($batch);
+                    $batchProducts = $this->getBatch($batch, $options);
 
                     if ( $batchProducts ) {
                         $products = array_merge($products, $batchProducts);
@@ -81,9 +81,10 @@ class ShopStyleService extends BaseApplicationComponent
         return $products;
     }
 
-    public function getBatch ($offsets = [ ])
+    public function getBatch ($offsets = [ ], $options = [ ])
     {
-        $endpoint = 'http://api.shopstyle.co.uk/api/v2/products';
+        $query    = $this->getOptionsSegments($options);
+        $endpoint = 'http://api.shopstyle.co.uk/api/v2/products' . $query;
         $products = [ ];
 
         try {
@@ -129,9 +130,10 @@ class ShopStyleService extends BaseApplicationComponent
         return $products;
     }
 
-    public function getResult ($offset = 0)
+    public function getResults ($offset = 0, $options = [ ])
     {
-        $endpoint = 'http://api.shopstyle.co.uk/api/v2/products';
+        $query    = $this->getOptionsSegments($options);
+        $endpoint = 'http://api.shopstyle.co.uk/api/v2/products' . $query;
 
         try {
             $query    = [
@@ -147,6 +149,41 @@ class ShopStyleService extends BaseApplicationComponent
         catch (\Exception $e) {
             ShopStylePlugin::log(Craft::t('Could not parse API response as JSON: {error}', [ 'error' => $e->getMessage() ]), LogLevel::Error);
         }
+    }
+
+    public function getOptionsSegments ($options = [ ])
+    {
+        $defaultOptions = [
+            'filters'       => [ ],
+            'category'      => null,
+            'sort'          => null,
+            'priceDropDate' => null,
+        ];
+        $options        = array_merge($defaultOptions, $options);
+        $segments       = [ ];
+
+        if ( !empty($options['filters']) ) {
+            $segments['fl'] = $options['filters'];
+        }
+
+        if ( !empty($options['priceDropDate']) ) {
+            $segments['pdd'] = $options['priceDropDate'];
+        }
+
+        if ( !empty($options['category']) ) {
+            $segments['cat'] = $options['category'];
+        }
+        if ( !empty($options['sort']) ) {
+            $segments['sort'] = $options['sort'];
+        }
+
+        if ( empty($segments) ) {
+            return '';
+        }
+
+        $query = preg_replace('/%5B(?:[0-9]|[1-9][0-9]+)%5D=/', '=', http_build_query($segments));
+
+        return '?' . $query;
     }
 
 }

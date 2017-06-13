@@ -30,7 +30,12 @@ class ShopStyleController extends BaseController
     {
         craft()->config->maxPowerCaptain();
 
-        $results = craft()->shopStyle->getBatchResults();
+        $results = craft()->shopStyle->getBatchResults([
+            'filters'       => craft()->request->getParam('filter'),
+            'category'      => craft()->request->getParam('category'),
+            'sort'          => craft()->request->getParam('sort'),
+            'priceDropDate' => craft()->request->getParam('priceDropDate'),
+        ]);
 
         $this->returnJson([ 'products' => $results, 'total' => count($results) ]);
     }
